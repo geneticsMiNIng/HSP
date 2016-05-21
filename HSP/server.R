@@ -48,7 +48,8 @@ shinyServer(function(input, output) {
 
     ggsurvplot(model, xlim=c(0,4000))$plot + 
       ggtitle(paste0("High/Low ",hspgene, "\nOnly mut tp53\np-value: ", signif(pp,2))) +
-      theme(legend.position=c(0.2,0.1)) + xlim(0,4000)
+      theme(legend.position=c(0.2,0.1)) + xlim(0,4000)+
+      scale_color_brewer(type = "qual", palette = 4)
   })
   
   # tylko HIGH
@@ -67,9 +68,16 @@ shinyServer(function(input, output) {
     df$TP53 = ifelse(df$X18475 == "1", "TP53 mut", "TP53 wild")
     
     df <- na.omit(df[,c("X_TIME_TO_EVENT", "X_EVENT", "TP53", "MDM2b")])
-    model <- survfit(Surv(X_TIME_TO_EVENT,X_EVENT) ~ TP53 + MDM2b, data=df)
-    pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ TP53 + MDM2b, data=df)$chisq, 3, lower.tail = F)
-    
+    df$g <- factor(paste(df$MDM2b, df$TP53))
+
+    if (input$groups42) {
+      pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, 3, lower.tail = F)
+    } else {
+      df$g <- factor(ifelse(grepl(as.character(df$g), pattern = "high.*mut"), paste0("TP53 mut, MDM2 high"), "other"))
+      pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, 1, lower.tail = F)
+    }
+    model <- survfit(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)
+
     ggsurvplot(model, xlim=c(0,4000))$plot + ggtitle(paste0("p-value: ", signif(pp,2))) +
       ggtitle(paste0("Only HIGH ",hspgene, "\np-value: ", signif(pp,2))) +
       theme(legend.position=c(0.3,0.15)) + xlim(0,4000)
@@ -92,8 +100,16 @@ shinyServer(function(input, output) {
     df$TP53 = ifelse(df$X18475 == "1", "TP53 mut", "TP53 wild")
     
     df <- na.omit(df[,c("X_TIME_TO_EVENT", "X_EVENT", "TP53", "MDM2b")])
-    model <- survfit(Surv(X_TIME_TO_EVENT,X_EVENT) ~ TP53 + MDM2b, data=df)
-    pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ TP53 + MDM2b, data=df)$chisq, 3, lower.tail = F)
+    df$g <- factor(paste(df$MDM2b, df$TP53))
+    
+    if (input$groups42) {
+      pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, 3, lower.tail = F)
+    } else {
+      df$g <- factor(ifelse(grepl(as.character(df$g), pattern = "high.*mut"), paste0("TP53 mut, MDM2 high"), "other"))
+      pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, 1, lower.tail = F)
+    }
+    model <- survfit(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)
+    pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, 3, lower.tail = F)
     
     ggsurvplot(model, xlim=c(0,4000))$plot + ggtitle(paste0("p-value: ", signif(pp,2))) +
       ggtitle(paste0("Only LOW ",hspgene, "\np-value: ", signif(pp,2))) +
@@ -116,11 +132,19 @@ shinyServer(function(input, output) {
     df$TP53 = ifelse(df$X18475 == "1", "TP53 mut", "TP53 wild")
     
     df <- na.omit(df[,c("X_TIME_TO_EVENT", "X_EVENT", "TP53", "MDM2b", "gene")])
-    df$MDM2_TP53 <- factor(paste(df$MDM2b, df$TP53))
-    tmp <- data.frame(table(df$MDM2_TP53, df$gene))
+    df$g <- factor(paste(df$MDM2b, df$TP53))
+    if (input$groups42) {
+      pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, 3, lower.tail = F)
+    } else {
+      df$g <- factor(ifelse(grepl(as.character(df$g), pattern = "high.*mut"), paste0("TP53 mut, MDM2 high"), "other"))
+      pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, 1, lower.tail = F)
+    }
+    
+    tmp <- data.frame(table(df$g, df$gene))
     
     ggplot(tmp, aes(Var1, y=Freq, fill=Var2)) + geom_bar(stat="identity") +
-      coord_flip() + theme(legend.position="bottom") + xlab("") + ylab("")
+      coord_flip() + theme(legend.position="bottom") + xlab("") + ylab("") +
+      scale_fill_brewer(type = "qual")
   })
   
 })
