@@ -17,7 +17,7 @@ shinyUI(fluidPage(
                        "TCGA Ovarian Cancer", "TCGA Rectal Cancer"),
                      "TCGA Breast Cancer"),
          selectInput("hspgene", "HSP 40 / TP:",
-                     c("TP63", "TP73", "DNAJB1", "DNAJB2", "DNAJB4", "DNAJB5", "DNAJB6", "DNAJB9", "DNAJB11", "DNAJB12", "DNAJB13", "DNAJB14"),
+                     c("MDM2", "TP53", "TP63", "TP73", "DNAJB1", "DNAJB2", "DNAJB4", "DNAJB5", "DNAJB6", "DNAJB9", "DNAJB11", "DNAJB12", "DNAJB13", "DNAJB14"),
                      "TP63"),
          checkboxInput("median", "Median / 0 split", TRUE),
          plotOutput("distPlot", width = "100%", height = "350px")

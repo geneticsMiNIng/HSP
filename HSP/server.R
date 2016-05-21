@@ -46,9 +46,9 @@ shinyServer(function(input, output) {
     model <- survfit(Surv(X_TIME_TO_EVENT,X_EVENT) ~ bin, data=df)
     pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ bin, data=df)$chisq, 1, lower.tail = F)
 
-    ggsurvplot(model)$plot + 
+    ggsurvplot(model, xlim=c(0,4000))$plot + 
       ggtitle(paste0("High/Low ",hspgene, "\nOnly mut tp53\np-value: ", signif(pp,2))) +
-      theme(legend.position=c(0.2,0.1))
+      theme(legend.position=c(0.2,0.1)) + xlim(0,4000)
   })
   
   # tylko HIGH
@@ -70,9 +70,9 @@ shinyServer(function(input, output) {
     model <- survfit(Surv(X_TIME_TO_EVENT,X_EVENT) ~ TP53 + MDM2b, data=df)
     pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ TP53 + MDM2b, data=df)$chisq, 3, lower.tail = F)
     
-    ggsurvplot(model)$plot + ggtitle(paste0("p-value: ", signif(pp,2))) +
+    ggsurvplot(model, xlim=c(0,4000))$plot + ggtitle(paste0("p-value: ", signif(pp,2))) +
       ggtitle(paste0("Only HIGH ",hspgene, "\np-value: ", signif(pp,2))) +
-      theme(legend.position=c(0.3,0.15))
+      theme(legend.position=c(0.3,0.15)) + xlim(0,4000)
   })
   
   
@@ -82,10 +82,10 @@ shinyServer(function(input, output) {
     
     hspgene = input$hspgene
     if (input$median) {
-      df <- df[which(df[,hspgene] <= 0),]
+      df <- df[which(df[,hspgene] < 0),]
       df$MDM2b <- cut(df[,"MDM2"], breaks = c(-100,0,100), labels = paste("MDM2",c("low", "high")))
     } else { 
-      df <- df[which(df[,hspgene] <= median(df[,hspgene], na.rm = TRUE)),]
+      df <- df[which(df[,hspgene] < median(df[,hspgene], na.rm = TRUE)),]
       df$MDM2b <- cut(df[,"MDM2"], breaks = c(-100,median(df[,"MDM2"], na.rm = TRUE),100), labels = paste("MDM2",c("low", "high")))
     }
     
@@ -95,9 +95,9 @@ shinyServer(function(input, output) {
     model <- survfit(Surv(X_TIME_TO_EVENT,X_EVENT) ~ TP53 + MDM2b, data=df)
     pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ TP53 + MDM2b, data=df)$chisq, 3, lower.tail = F)
     
-    ggsurvplot(model)$plot + ggtitle(paste0("p-value: ", signif(pp,2))) +
+    ggsurvplot(model, xlim=c(0,4000))$plot + ggtitle(paste0("p-value: ", signif(pp,2))) +
       ggtitle(paste0("Only LOW ",hspgene, "\np-value: ", signif(pp,2))) +
-      theme(legend.position=c(0.3,0.15))
+      theme(legend.position=c(0.3,0.15)) + xlim(0,4000)
   })
   
   # tylko 
@@ -143,7 +143,7 @@ shinyServer(function(input, output) {
 # expression$X_PATIENT <- gsub(expression$X_PATIENT, pattern="-", replacement=".")
 # 
 # # mutation
-# clinical_expression <- merge(clinical, expression[,c("X_PATIENT", "TP63", "TP73", "DNAJB1", "DNAJB2", "DNAJB4", "DNAJB5", "DNAJB6", "DNAJB9", "DNAJB11", "DNAJB12", "DNAJB13", "DNAJB14", "MDM2", "TP73", "TP63")],  by="X_PATIENT", all.x=TRUE)
+# clinical_expression <- merge(clinical, expression[,c("X_PATIENT", "MDM2", "TP53", "TP63", "TP73", "DNAJB1", "DNAJB2", "DNAJB4", "DNAJB5", "DNAJB6", "DNAJB9", "DNAJB11", "DNAJB12", "DNAJB13", "DNAJB14", "MDM2", "TP73", "TP63")],  by="X_PATIENT", all.x=TRUE)
 # 
 # TP53 <- mutation.cb[grep(mutation.cb[,1], pattern="TP53$", value = FALSE),-1]
 # TP53v <- data.frame(X_PATIENT = substr(names(TP53), 1, 12),TP53=t(TP53))
@@ -151,3 +151,4 @@ shinyServer(function(input, output) {
 # clinical_expression_mut <- merge(clinical_expression, TP53v, by="X_PATIENT", all.x=TRUE)
 # 
 # save(clinical_expression_mut, file="clinical_expression_mut.rda")
+
