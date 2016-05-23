@@ -14,8 +14,12 @@ shinyServer(function(input, output) {
     hspgene = "DNAJB2"
     hspgene = input$hspgene
     
-    df <- na.omit(clinical_expression_mut[clinical_expression_mut$X_cohort == input$cohort,
-                                          c(hspgene), drop=FALSE])
+    if (input$cohort == "PANCAN12") {
+      df <- na.omit(clinical_expression_mut[, c(hspgene), drop=FALSE])
+    } else {
+      df <- na.omit(clinical_expression_mut[clinical_expression_mut$X_cohort == input$cohort,
+                                            c(hspgene), drop=FALSE])
+    }
 
     pl <- ggplot(df, aes_string(hspgene)) +
       geom_histogram()+
@@ -32,7 +36,11 @@ shinyServer(function(input, output) {
     cohort <- "TCGA Breast Cancer"
     hspgene = "DNAJB2"
     
-    df <- clinical_expression_mut[clinical_expression_mut$X_cohort == input$cohort,]
+    if (input$cohort == "PANCAN12") {
+      df <- na.omit(clinical_expression_mut[, , drop=FALSE])
+    } else {
+      df <- na.omit(clinical_expression_mut[clinical_expression_mut$X_cohort == input$cohort, , drop=FALSE])
+    }
     df <- df[df$X18475 == "1", ]
     
     hspgene = input$hspgene
@@ -54,7 +62,11 @@ shinyServer(function(input, output) {
   
   # tylko HIGH
   output$distPlot3 <- renderPlot({
-    df <- clinical_expression_mut[clinical_expression_mut$X_cohort == input$cohort,]
+    if (input$cohort == "PANCAN12") {
+      df <- na.omit(clinical_expression_mut[, , drop=FALSE])
+    } else {
+      df <- na.omit(clinical_expression_mut[clinical_expression_mut$X_cohort == input$cohort, , drop=FALSE])
+    }
     
     hspgene = input$hspgene
     if (input$median) {
@@ -86,7 +98,11 @@ shinyServer(function(input, output) {
   
   # tylko LOW
   output$distPlot4 <- renderPlot({
-    df <- clinical_expression_mut[clinical_expression_mut$X_cohort == input$cohort,]
+    if (input$cohort == "PANCAN12") {
+      df <- na.omit(clinical_expression_mut[, , drop=FALSE])
+    } else {
+      df <- na.omit(clinical_expression_mut[clinical_expression_mut$X_cohort == input$cohort, , drop=FALSE])
+    }
     
     hspgene = input$hspgene
     if (input$median) {
@@ -118,7 +134,11 @@ shinyServer(function(input, output) {
   
   # tylko 
   output$distPlot5 <- renderPlot({
-    df <- clinical_expression_mut[clinical_expression_mut$X_cohort == input$cohort,]
+    if (input$cohort == "PANCAN12") {
+      df <- na.omit(clinical_expression_mut[, , drop=FALSE])
+    } else {
+      df <- na.omit(clinical_expression_mut[clinical_expression_mut$X_cohort == input$cohort, , drop=FALSE])
+    }
     
     hspgene = input$hspgene
     if (input$median) {
@@ -152,7 +172,7 @@ shinyServer(function(input, output) {
 
 
 
-
+# 
 # clinical <- clinical.cb[,c("X_PATIENT", "X_TIME_TO_EVENT", "X_EVENT", "X_cohort")]
 # clinical$X_PATIENT <- substr((clinical$X_PATIENT), 1, 12)
 # clinical$X_PATIENT <- gsub(clinical$X_PATIENT, pattern="-", replacement=".")
@@ -167,7 +187,8 @@ shinyServer(function(input, output) {
 # expression$X_PATIENT <- gsub(expression$X_PATIENT, pattern="-", replacement=".")
 # 
 # # mutation
-# clinical_expression <- merge(clinical, expression[,c("X_PATIENT", "MDM2", "TP53", "TP63", "TP73", "DNAJB1", "DNAJB2", "DNAJB4", "DNAJB5", "DNAJB6", "DNAJB9", "DNAJB11", "DNAJB12", "DNAJB13", "DNAJB14", "MDM2", "TP73", "TP63")],  by="X_PATIENT", all.x=TRUE)
+# clinical_expression <- merge(clinical, expression[,c("X_PATIENT", "MDM2", "TP53", "TP63", "TP73", "DNAJB1", "DNAJB2", "DNAJB4", "DNAJB5", "DNAJB6", "DNAJB9", "DNAJB11", "DNAJB12", "DNAJB13", "DNAJB14", "MDM2", "TP73", "TP63",
+#                                                      "HSPA1A", "HSPA1B", "HSPA1L", "HSPA2", "HSPA5", "HSPA6", "HSPA7", "HSPA8", "HSPA9", "HSPA12A", "HSPA12B", "HSPA13", "HSPA14", "HSP90AA1", "HSP90AB1", "HSP90B1", "TRAP1")],  by="X_PATIENT", all.x=TRUE)
 # 
 # TP53 <- mutation.cb[grep(mutation.cb[,1], pattern="TP53$", value = FALSE),-1]
 # TP53v <- data.frame(X_PATIENT = substr(names(TP53), 1, 12),TP53=t(TP53))
@@ -175,4 +196,4 @@ shinyServer(function(input, output) {
 # clinical_expression_mut <- merge(clinical_expression, TP53v, by="X_PATIENT", all.x=TRUE)
 # 
 # save(clinical_expression_mut, file="clinical_expression_mut.rda")
-
+# 
