@@ -1,5 +1,4 @@
 library(shiny)
-library(RTCGA.PANCAN12)
 library(ggplot2)
 library(survminer)
 library(survival)
@@ -37,9 +36,9 @@ shinyServer(function(input, output) {
     hspgene = "DNAJB2"
     
     if (input$cohort == "PANCAN12") {
-      df <- na.omit(clinical_expression_mut[, , drop=FALSE])
+      df <- (clinical_expression_mut[, , drop=FALSE])
     } else {
-      df <- na.omit(clinical_expression_mut[clinical_expression_mut$X_cohort == input$cohort, , drop=FALSE])
+      df <- (clinical_expression_mut[clinical_expression_mut$X_cohort == input$cohort, , drop=FALSE])
     }
     df <- df[df$X18475 == "1", ]
     
@@ -63,9 +62,9 @@ shinyServer(function(input, output) {
   # tylko HIGH
   output$distPlot3 <- renderPlot({
     if (input$cohort == "PANCAN12") {
-      df <- na.omit(clinical_expression_mut[, , drop=FALSE])
+      df <- (clinical_expression_mut[, , drop=FALSE])
     } else {
-      df <- na.omit(clinical_expression_mut[clinical_expression_mut$X_cohort == input$cohort, , drop=FALSE])
+      df <- (clinical_expression_mut[clinical_expression_mut$X_cohort == input$cohort, , drop=FALSE])
     }
     
     hspgene = input$hspgene
@@ -99,9 +98,9 @@ shinyServer(function(input, output) {
   # tylko LOW
   output$distPlot4 <- renderPlot({
     if (input$cohort == "PANCAN12") {
-      df <- na.omit(clinical_expression_mut[, , drop=FALSE])
+      df <- (clinical_expression_mut[, , drop=FALSE])
     } else {
-      df <- na.omit(clinical_expression_mut[clinical_expression_mut$X_cohort == input$cohort, , drop=FALSE])
+      df <- (clinical_expression_mut[clinical_expression_mut$X_cohort == input$cohort, , drop=FALSE])
     }
     
     hspgene = input$hspgene
@@ -135,9 +134,9 @@ shinyServer(function(input, output) {
   # tylko 
   output$distPlot5 <- renderPlot({
     if (input$cohort == "PANCAN12") {
-      df <- na.omit(clinical_expression_mut[, , drop=FALSE])
+      df <- (clinical_expression_mut[, , drop=FALSE])
     } else {
-      df <- na.omit(clinical_expression_mut[clinical_expression_mut$X_cohort == input$cohort, , drop=FALSE])
+      df <- (clinical_expression_mut[clinical_expression_mut$X_cohort == input$cohort, , drop=FALSE])
     }
     
     hspgene = input$hspgene
