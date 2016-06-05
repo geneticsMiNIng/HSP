@@ -21,16 +21,16 @@ shinyUI(fluidPage(
                        "HSPA1A", "HSPA1B", "HSPA1L", "HSPA2", "HSPA5", "HSPA6", "HSPA7", "HSPA8", "HSPA9", "HSPA12A", "HSPA12B", "HSPA13", "HSPA14", "HSP90AA1", "HSP90AB1", "HSP90B1", "TRAP1"),
                      "TP63"),
          checkboxInput("groups42", "4 groups / 2 groups", TRUE),
-         checkboxInput("median", "Median / 0 split", TRUE),
+         checkboxInput("median", "0 / median split", TRUE),
          plotOutput("distPlot", width = "100%", height = "350px")
     ),
     column(4,
-           plotOutput("distPlot2", width = "100%", height = "400px"),
-           plotOutput("distPlot5", width = "100%", height = "400px")
+           a(plotOutput("distPlot2", width = "100%", height = "400px"), href="data/tmp2.csv"),
+           a(plotOutput("distPlot5", width = "100%", height = "400px"), href="data/tmp5.csv")
     ),
     column(4,
-           plotOutput("distPlot3", width = "100%", height = "400px"),
-           plotOutput("distPlot4", width = "100%", height = "400px")
+           a(plotOutput("distPlot3", width = "100%", height = "400px"), href="data/tmp3.csv"),
+           a(plotOutput("distPlot4", width = "100%", height = "400px"), href="data/tmp4.csv")
     )
   )
 ))
