@@ -1,5 +1,3 @@
-"TP63 low";"TP63 high"
-"MDM2 high TP53 mut";25;32
-"MDM2 high TP53 wild";75;225
-"MDM2 low TP53 mut";70;119
-"MDM2 low TP53 wild";44;132
+"DNAJB2 low";"DNAJB2 high"
+"other";315;370
+"TP53 mut, MDM2 high";37;23
