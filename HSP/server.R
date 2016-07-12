@@ -44,9 +44,9 @@ shinyServer(function(input, output) {
     
     hspgene = input$hspgene
     if (input$median) {
-      df$bin <- cut(df[,hspgene], breaks = c(-100,0,100), labels = paste(hspgene,c("low", "high"), "/ mut53"))
+      df$bin <- cut(df[,hspgene], breaks = c(-100,0,100), labels = paste(hspgene,c("low", "high"), "/ mut53"), right=FALSE)
     } else { 
-      df$bin <- cut(df[,hspgene], breaks = c(-100,median(df[,hspgene], na.rm = TRUE),100), labels = paste(hspgene,c("low", "high"), "/ mut53"))
+      df$bin <- cut(df[,hspgene], breaks = c(-100,median(df[,hspgene], na.rm = TRUE),100), labels = paste(hspgene,c("low", "high"), "/ mut53"), right=FALSE)
     }
     
     df <- na.omit(df[,c("X_TIME_TO_EVENT","X_EVENT","bin")])
@@ -74,11 +74,11 @@ shinyServer(function(input, output) {
     
     hspgene = input$hspgene
     if (input$median) {
-      df$MDM2b <- cut(df[,"MDM2"], breaks = c(-100,0,100), labels = paste("MDM2",c("low", "high")))
-      df <- df[which(df[,hspgene] > 0),]
+      df$MDM2b <- cut(df[,"MDM2"], breaks = c(-100,0,100), labels = paste("MDM2",c("low", "high")), right=FALSE)
+      df <- df[which(df[,hspgene] >= 0),]
     } else { 
-      df$MDM2b <- cut(df[,"MDM2"], breaks = c(-100,median(df[,"MDM2"], na.rm = TRUE),100), labels = paste("MDM2",c("low", "high")))
-      df <- df[which(df[,hspgene] > median(df[,hspgene], na.rm = TRUE)),]
+      df$MDM2b <- cut(df[,"MDM2"], breaks = c(-100,median(df[,"MDM2"], na.rm = TRUE),100), labels = paste("MDM2",c("low", "high")), right=FALSE)
+      df <- df[which(df[,hspgene] >= median(df[,hspgene], na.rm = TRUE)),]
     }
     
     df$TP53 = ifelse(df$X18475 == "1", "TP53 mut", "TP53 wild")
@@ -87,7 +87,7 @@ shinyServer(function(input, output) {
     df$g <- factor(paste(df$MDM2b, df$TP53))
     
     if (input$groups42) {
-      pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, 3, lower.tail = F)
+      pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, nlevels(df$g)-1, lower.tail = F)
       
       dfClean <- df
       colnames(dfClean)[5] ="Both"
@@ -95,7 +95,7 @@ shinyServer(function(input, output) {
       write.table(dfClean[,c(1:4, 6)], file="www/data/tmp3.csv", sep=";", row.names = F)
     } else {
       df$g <- factor(ifelse(grepl(as.character(df$g), pattern = "high.*mut"), paste0("TP53 mut, MDM2 high"), "other"))
-      pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, 1, lower.tail = F)
+      pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, nlevels(df$g)-1, lower.tail = F)
       
       dfClean <- df
       colnames(dfClean)[5] ="Both"
@@ -120,34 +120,44 @@ shinyServer(function(input, output) {
     
     hspgene = input$hspgene
     if (input$median) {
-      df$MDM2b <- cut(df[,"MDM2"], breaks = c(-100,0,100), labels = paste("MDM2",c("low", "high")))
-      df$hsp <- cut(df[,hspgene], breaks = c(-100,0,100), labels = paste(hspgene,c("low", "high")))
+      df$MDM2b <- cut(df[,"MDM2"], breaks = c(-100,0,100), labels = paste("MDM2",c("low", "high")), right=FALSE)
+      df$hsp <- cut(df[,hspgene], breaks = c(-100,0,100), labels = paste(hspgene,c("low", "high")), right=FALSE)
     } else { 
-      df$MDM2b <- cut(df[,"MDM2"], breaks = c(-100,median(df[,"MDM2"], na.rm = TRUE),100), labels = paste("MDM2",c("low", "high")))
-      df$hsp <- cut(df[,hspgene], breaks = c(-100,median(df[,hspgene], na.rm = TRUE),100), labels = paste(hspgene,c("low", "high")))
+      df$MDM2b <- cut(df[,"MDM2"], breaks = c(-100,median(df[,"MDM2"], na.rm = TRUE),100), labels = paste("MDM2",c("low", "high")), right=FALSE)
+      df$hsp <- cut(df[,hspgene], breaks = c(-100,median(df[,hspgene], na.rm = TRUE),100), labels = paste(hspgene,c("low", "high")), right=FALSE)
     }
     
     df$TP53 = ifelse(df$X18475 == "1", "TP53 mut", "TP53 wild")
     
     df <- na.omit(df[,c("X_TIME_TO_EVENT", "X_EVENT", "TP53", "MDM2b", "hsp")])
-    df$g <- factor(paste(df$MDM2b, df$hspb, df$TP53))
+    df$g <- factor(paste(df$MDM2b, df$TP53, df$hsp))
     
     if (input$groups42) {
-      pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, nlevels(df$g), lower.tail = F)
+      pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, nlevels(df$g)-1, lower.tail = F)
       
       dfClean <- df
       dfClean$cohort <- input$cohort
       write.table(dfClean[,c(1,2,3,4,6)], file="www/data/tmp22.csv", sep=";", row.names = F)
     } else {
-      df$g <- factor(ifelse(grepl(as.character(df$g), pattern = "high.*mut"), paste0("TP53 mut, MDM2 high"), "other"))
-      pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, nlevels(df$g), lower.tail = F)
-      
-      dfClean <- df
-      dfClean$cohort <- input$cohort
-      write.table(dfClean[,c(1,2,5,6)], file="www/data/tmp22.csv", sep=";", row.names = F)
+      if (hspgene == "MDM2") {
+        df$g <- factor(ifelse(grepl(as.character(df$g), pattern = "high.*mut"), paste0("TP53 mut, MDM2 high"), "other"))
+        pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, nlevels(df$g)-1, lower.tail = F)
+        
+        dfClean <- df
+        dfClean$cohort <- input$cohort
+        write.table(dfClean[,c(1,2,5,6)], file="www/data/tmp22.csv", sep=";", row.names = F)
+      } else {
+        df$g <- factor(paste(ifelse(grepl(as.character(df$g), pattern = "high.*mut"), "TP53 mut, MDM2 high", "other"),
+                                    df$hsp))
+        pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, nlevels(df$g)-1, lower.tail = F)
+        
+        dfClean <- df
+        dfClean$cohort <- input$cohort
+        write.table(dfClean[,c(1,2,5,6)], file="www/data/tmp22.csv", sep=";", row.names = F)
+      }
     }
     model <- survfit(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)
-    pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, nlevels(df$g), lower.tail = F)
+    pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, nlevels(df$g)-1, lower.tail = F)
     
     ggsurvplot(model, xlim=c(0,4000))$plot + ggtitle(paste0("p-value: ", signif(pp,2))) +
       ggtitle(paste0("Low/High", hspgene, "\np-value: ", signif(pp,2), "\ncases: ", nrow(df))) +
@@ -164,11 +174,11 @@ shinyServer(function(input, output) {
     
     hspgene = input$hspgene
     if (input$median) {
-      df$MDM2b <- cut(df[,"MDM2"], breaks = c(-100,0,100), labels = paste("MDM2",c("low", "high")))
-      df <- df[which(df[,hspgene] <= 0),]
+      df$MDM2b <- cut(df[,"MDM2"], breaks = c(-100,0,100), labels = paste("MDM2",c("low", "high")), right=FALSE)
+      df <- df[which(df[,hspgene] < 0),]
     } else { 
-      df$MDM2b <- cut(df[,"MDM2"], breaks = c(-100,median(df[,"MDM2"], na.rm = TRUE),100), labels = paste("MDM2",c("low", "high")))
-      df <- df[which(df[,hspgene] <= median(df[,hspgene], na.rm = TRUE)),]
+      df$MDM2b <- cut(df[,"MDM2"], breaks = c(-100,median(df[,"MDM2"], na.rm = TRUE),100), labels = paste("MDM2",c("low", "high")), right=FALSE)
+      df <- df[which(df[,hspgene] < median(df[,hspgene], na.rm = TRUE)),]
     }
     
     df$TP53 = ifelse(df$X18475 == "1", "TP53 mut", "TP53 wild")
@@ -177,21 +187,21 @@ shinyServer(function(input, output) {
     df$g <- factor(paste(df$MDM2b, df$TP53))
     
     if (input$groups42) {
-      pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, 3, lower.tail = F)
+      pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, nlevels(df$g)-1, lower.tail = F)
       
       dfClean <- df
       dfClean$cohort <- input$cohort
       write.table(dfClean[,c(1,2,3,4,6)], file="www/data/tmp4.csv", sep=";", row.names = F)
     } else {
       df$g <- factor(ifelse(grepl(as.character(df$g), pattern = "high.*mut"), paste0("TP53 mut, MDM2 high"), "other"))
-      pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, 1, lower.tail = F)
+      pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, nlevels(df$g)-1, lower.tail = F)
       
       dfClean <- df
       dfClean$cohort <- input$cohort
       write.table(dfClean[,c(1,2,5,6)], file="www/data/tmp4.csv", sep=";", row.names = F)
     }
     model <- survfit(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)
-    pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, 3, lower.tail = F)
+    pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, nlevels(df$g)-1, lower.tail = F)
     
     ggsurvplot(model, xlim=c(0,4000))$plot + ggtitle(paste0("p-value: ", signif(pp,2))) +
       ggtitle(paste0("Only LOW ",hspgene, "\np-value: ", signif(pp,2), "\ncases: ", nrow(df))) +
@@ -208,11 +218,11 @@ shinyServer(function(input, output) {
     
     hspgene = input$hspgene
     if (input$median) {
-      df$gene <- cut(df[,hspgene], breaks = c(-100,0,100), labels = paste(hspgene,c("low", "high")))
-      df$MDM2b <- cut(df[,"MDM2"], breaks = c(-100,0,100), labels = paste("MDM2",c("low", "high")))
+      df$gene <- cut(df[,hspgene], breaks = c(-100,0,100), labels = paste(hspgene,c("low", "high")), right=FALSE)
+      df$MDM2b <- cut(df[,"MDM2"], breaks = c(-100,0,100), labels = paste("MDM2",c("low", "high")), right=FALSE)
     } else { 
-      df$gene <- cut(df[,hspgene], breaks = c(-100,median(df[,hspgene], na.rm = TRUE),100), labels = paste(hspgene,c("low", "high")))
-      df$MDM2b <- cut(df[,"MDM2"], breaks = c(-100,median(df[,"MDM2"], na.rm = TRUE),100), labels = paste("MDM2",c("low", "high")))
+      df$gene <- cut(df[,hspgene], breaks = c(-100,median(df[,hspgene], na.rm = TRUE),100), labels = paste(hspgene,c("low", "high")), right=FALSE)
+      df$MDM2b <- cut(df[,"MDM2"], breaks = c(-100,median(df[,"MDM2"], na.rm = TRUE),100), labels = paste("MDM2",c("low", "high")), right=FALSE)
     }
     
     df$TP53 = ifelse(df$X18475 == "1", "TP53 mut", "TP53 wild")
