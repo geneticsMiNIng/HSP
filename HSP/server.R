@@ -58,10 +58,14 @@ shinyServer(function(input, output) {
     model <- survfit(Surv(X_TIME_TO_EVENT,X_EVENT) ~ bin, data=df)
     pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ bin, data=df)$chisq, 1, lower.tail = F)
     
-    ggsurvplot(model, xlim=c(0,4000))$plot + 
-      ggtitle(paste0("High/Low ",hspgene, "\nOnly mut tp53\np-value: ", signif(pp,2), "\ncases: ", nrow(df))) +
-      theme(legend.position=c(0.2,0.1)) + xlim(0,4000)+
-      scale_color_brewer(type = "qual", palette = 4)
+    ggsurvplot(model, xlim=c(0,4000), main=paste0("High/Low ",hspgene, "\nOnly mut tp53\np-value: ", signif(pp,2)), # , "\ncases: ", nrow(df)
+               legend="none",
+               risk.table = TRUE, risk.table.y.text.col = TRUE)
+
+#    $plot + 
+#      ggtitle(paste0("High/Low ",hspgene, "\nOnly mut tp53\np-value: ", signif(pp,2), "\ncases: ", nrow(df))) +
+#      theme(legend.position=c(0.2,0.1)) + xlim(0,4000)+
+#      scale_color_brewer(type = "qual", palette = 4)
   })
   
   # tylko HIGH
@@ -159,9 +163,14 @@ shinyServer(function(input, output) {
     model <- survfit(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)
     pp <- pchisq(survdiff(Surv(X_TIME_TO_EVENT,X_EVENT) ~ g, data=df)$chisq, nlevels(df$g)-1, lower.tail = F)
     
-    ggsurvplot(model, xlim=c(0,4000))$plot + ggtitle(paste0("p-value: ", signif(pp,2))) +
-      ggtitle(paste0("Low/High", hspgene, "\np-value: ", signif(pp,2), "\ncases: ", nrow(df))) +
-      theme(legend.position=c(0.4,0.15)) + xlim(0,4000)
+#    ggsurvplot(model, xlim=c(0,4000))$plot + ggtitle(paste0("p-value: ", signif(pp,2))) +
+#      ggtitle(paste0("Low/High", hspgene, "\np-value: ", signif(pp,2), "\ncases: ", nrow(df))) +
+#      theme(legend.position=c(0.4,0.15)) + xlim(0,4000)
+
+    ggsurvplot(model, xlim=c(0,4000), main=paste0("Low/High ",hspgene, "\nOnly mut tp53\np-value: ", signif(pp,2)), # , "\ncases: ", nrow(df)
+               legend="none",
+               risk.table = TRUE, risk.table.y.text.col = TRUE)
+    
   })
   
   # tylko LOW
@@ -244,6 +253,13 @@ shinyServer(function(input, output) {
     ggplot(tmp, aes(Var1, y=Freq, fill=Var2)) + geom_bar(stat="identity") +
       coord_flip() + theme(legend.position="bottom") + xlab("") + ylab("") +
       scale_fill_brewer(type = "qual")
+  })
+  
+  output$colLeft <- renderUI({
+    HTML("Here we <b>are</b>")
+  })
+  output$colRight <- renderUI({
+    HTML("Here we <b>are</b>")
   })
   
 })
