@@ -26,12 +26,14 @@ shinyUI(fluidPage(
            a(plotOutput("distPlot5", width = "100%", height = "350px"), href="data/tmp5.csv")
     ),
     column(4,
-           a(plotOutput("distPlot2", width = "100%", height = "400px"), href="data/tmp2.csv"),
-           a(plotOutput("distPlot3", width = "100%", height = "400px"), href="data/tmp3.csv")
+           a(plotOutput("distPlot2", width = "100%", height = "500px"), href="data/tmp2.csv"),
+           a(plotOutput("distPlot3", width = "100%", height = "400px"), href="data/tmp3.csv"),
+           uiOutput("colLeft")
     ),
     column(4,
-           a(plotOutput("distPlot22", width = "100%", height = "400px"), href="data/tmp22.csv"),
-           a(plotOutput("distPlot4", width = "100%", height = "400px"), href="data/tmp4.csv")
+           a(plotOutput("distPlot22", width = "100%", height = "500px"), href="data/tmp22.csv"),
+           a(plotOutput("distPlot4", width = "100%", height = "400px"), href="data/tmp4.csv"),
+           uiOutput("colRight")
     )
   )
 ))
